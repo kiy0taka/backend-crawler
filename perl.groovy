@@ -6,18 +6,17 @@ import net.sf.json.*
 import com.gargoylesoftware.htmlunit.WebClient
 
 def wc = new WebClient()
+wc.setThrowExceptionOnScriptError(false)
 def baseUrl = 'http://www.cpan.org/src/5.0/'
 HtmlPage p = wc.getPage('http://search.cpan.org/dist/perl/');
 
 def json = [];
 
-//p.getElementsByName("url").reverse().collect { HtmlOption e ->
-def select = p.getElementsByName("url").get(0);
-select.getChildElements().each { e ->
-    def ver = (e.getText() =~ /^perl-([^ ]+).*--/)
+p.selectNodes('//select[@class="extend"]/option').each { e ->
+    def ver = (e.getAttribute('value') =~ /^.*?\/perl-([^ ]+).*/)
     if (ver) {
-        def url = baseUrl + "perl-" + ver[0][1] + ".tar.gz"; 
-//        println url 
+        def url = baseUrl + "perl-" + ver[0][1] + ".tar.gz";
+//        println url
         json << ["id":ver[0][1], "name": "Perl ${ver[0][1]}".toString(), "url":url];
     }
 }
